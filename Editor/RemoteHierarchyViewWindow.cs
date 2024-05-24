@@ -69,6 +69,7 @@ namespace RemoteHierarchy
 			}
 			else
 			{
+				m_TreeView.SetData(null);
                 if (GUILayout.Button("Á¬½Ó"))
                 {
                     m_kClient.ConnectToTcpServer(m_kHost);

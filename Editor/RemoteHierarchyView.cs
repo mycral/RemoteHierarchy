@@ -33,7 +33,7 @@ namespace RemoteHierarchy
 			Rect toggleRect = args.rowRect;
 			toggleRect.x += GetContentIndent(item);
 			toggleRect.width = kToggleWidth;
-			//if (toggleRect.xMax < cellRect.xMax)
+	
 			if (item is TreeViewItem<Proto.GameObjectInfo> goInfo)
 			{
 				var isActive = goInfo.data.IsActive;
