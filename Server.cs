@@ -1,9 +1,11 @@
 // This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. 
 // To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ 
 // or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+using RemoteHierarchy.Proto;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -12,131 +14,170 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Server : MonoBehaviour
+namespace RemoteHierarchy
 {
-    #region private members 	
-    /// <summary> 	
-    /// TCPListener to listen for incomming TCP connection 	
-    /// requests. 	
-    /// </summary> 	
-    private TcpListener tcpListener;
-    /// <summary> 
-    /// Background thread for TcpServer workload. 	
-    /// </summary> 	
-    private Thread tcpListenerThread;
-    /// <summary> 	
-    /// Create handle to connected tcp client. 	
-    /// </summary> 	
-    private TcpClient connectedTcpClient;
-    #endregion
-
-    // Use this for initialization
-    void Start()
+    public class Server : MonoBehaviour
     {
-        // Start TcpServer background thread 		
-        tcpListenerThread = new Thread(new ThreadStart(ListenForIncommingRequests));
-        tcpListenerThread.IsBackground = true;
-        tcpListenerThread.Start();
-    }
+        #region private members 	
+        /// <summary> 	
+        /// TCPListener to listen for incomming TCP connection 	
+        /// requests. 	
+        /// </summary> 	
+        private TcpListener tcpListener;
+        /// <summary> 
+        /// Background thread for TcpServer workload. 	
+        /// </summary> 	
+        private Thread tcpListenerThread;
+        /// <summary> 	
+        /// Create handle to connected tcp client. 	
+        /// </summary> 	
+        private TcpClient connectedTcpClient;
+        #endregion
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.A))
+        private void Awake()
         {
-            SendMessage();
+            UnityMainThreadDispatcher _ = UnityMainThreadDispatcher.Instance;
         }
-    }
 
-    /// <summary> 	
-    /// Runs in background TcpServerThread; Handles incomming TcpClient requests 	
-    /// </summary> 	
-    private void ListenForIncommingRequests()
-    {
-        try
+        // Use this for initialization
+        void Start()
         {
-            // Create listener on localhost port 8052. 			
-            tcpListener = new TcpListener(IPAddress.Parse("0.0.0.0"), 8052);
-            tcpListener.Start();
-            Debug.Log("Server is listening");
-            Byte[] bytes = new Byte[1024];
-            while (true)
+            // Start TcpServer background thread 		
+            tcpListenerThread = new Thread(new ThreadStart(ListenForIncommingRequests));
+            tcpListenerThread.IsBackground = true;
+            tcpListenerThread.Start();
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+        }
+
+        /// <summary> 	
+        /// Runs in background TcpServerThread; Handles incomming TcpClient requests 	
+        /// </summary> 	
+        private void ListenForIncommingRequests()
+        {
+            try
             {
-                using (connectedTcpClient = tcpListener.AcceptTcpClient())
+                // Create listener on localhost port 8052. 			
+                tcpListener = new TcpListener(IPAddress.Parse("0.0.0.0"), 8052);
+                tcpListener.Start();
+                Debug.Log("Server is listening");
+                MemoryStream memoryStream = new MemoryStream();
+                byte[] buff = new byte[1024];
+                while (true)
                 {
-                    // Get a stream object for reading 					
-                    using (NetworkStream stream = connectedTcpClient.GetStream())
+                    using (connectedTcpClient = tcpListener.AcceptTcpClient())
                     {
-                        int length;
-                        // Read incomming stream into byte arrary. 						
-                        while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                        Utility.WaitExecOnMainThread(() =>
                         {
-                            var incommingData = new byte[length];
-                            Array.Copy(bytes, 0, incommingData, 0, length);
-                            // Convert byte array to string message. 							
-                            string clientMessage = Encoding.ASCII.GetString(incommingData);
-                            Debug.Log("client message received as: " + clientMessage);
+                            SendGameObjectTree();
+                        });
+                        // Get a stream object for reading 					
+                        using (NetworkStream stream = connectedTcpClient.GetStream())
+                        {
+                            int length;
+                            // Read incomming stream into byte arrary. 	
+                            while ((length = stream.Read(buff, 0, buff.Length)) != 0)
+                            {
+                                memoryStream.Write(buff, 0, length);
+                                if(memoryStream.Length > 4)
+                                {
+                                   int messageLength = BitConverter.ToInt32(memoryStream.GetBuffer());
+                                    if(messageLength <= memoryStream.Length)
+                                    {
+                                        Utility.WaitExecOnMainThread(() =>
+                                        {
+                                            OnRevMsg(memoryStream, messageLength);
+                                        });
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-        catch (SocketException socketException)
-        {
-            Debug.Log("SocketException " + socketException.ToString());
-        }
-    }
-    /// <summary> 	
-    /// Send message to client using socket connection. 	
-    /// </summary> 	
-    private void SendMessage()
-    {
-        if (connectedTcpClient == null)
-        {
-            return;
-        }
-
-        try
-        {
-            // Get a stream object for writing. 			
-            NetworkStream stream = connectedTcpClient.GetStream();
-            if (stream.CanWrite)
+            catch (SocketException socketException)
             {
-                string serverMessage = JsonUtility.ToJson(new SceneInfo() { AllGos = GetGoList() });
-                // Convert string message to byte array.                 
-                byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(serverMessage);
-                // Write byte array to socketConnection stream.               
-                stream.Write(serverMessageAsByteArray, 0, serverMessageAsByteArray.Length);
-                Debug.Log("Server sent his message - should be received by client");
+                Debug.Log("SocketException " + socketException.ToString());
             }
         }
-        catch (SocketException socketException)
+
+
+        private void OnRevMsg(MemoryStream ms,int msgLength)
         {
-            Debug.Log("Socket exception: " + socketException);
-        }
-    }
+            byte[] buffer = ms.GetBuffer();
+            //todo process
+            int msgId = BitConverter.ToInt32(buffer, 4);
 
-    [Serializable]
-    public class SceneInfo
-    {
-        public List<string> AllGos;
-    }
-
-
-
-
-    List<string> GetGoList()
-    {
-        List<string> sceneGos = new List<string>();
-        for(int i=0;i < SceneManager.sceneCount;++i)
-        {
-            var curScene = SceneManager.GetSceneAt(i);
-            var rootGos = curScene.GetRootGameObjects();
-            foreach(var go in rootGos)
+            try
             {
-                sceneGos.Add($"{curScene.name}/{go.name}");
+                switch(msgId)
+                {
+                    case MessageId.C2S_SetGameObjectActiveState:
+                    {
+                        OnMsgGameObjectActive(buffer,msgLength);
+                        break;
+                    }
+                    case MessageId.C2S_GetGameObjectTree:
+                    {
+                        SendGameObjectTree();
+                        break;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            Array.Copy(buffer, msgLength, buffer, 0, ms.Position - msgLength);//����������
+            ms.Position = ms.Position - msgLength;
+        }
+
+        private void OnMsgGameObjectActive(byte[] buff,int length)
+        {
+            var setGoActive = Utility.ResoveMessageBody<Proto.GameObjectActive>(buff, length);
+            var gameObject = Utility.GetGameObjectFromInstanceId(setGoActive.InstanceId);
+            if (gameObject != null)
+            {
+                gameObject.SetActive(setGoActive.IsActive);
+            }
+            else
+            {
+                Debug.LogError(($"没有找到实例{setGoActive.InstanceId}"));
+            }
+            SendGameObjectTree();
+        }
+
+        private void SendGameObjectTree()
+        {
+            var tree = Utility.BuildGameObjectTree();
+            SendBytes(Utility.BuildMessageBytes(Proto.MessageId.S2C_GameObjectTree, tree));
+        }
+
+        /// <summary> 	
+        /// Send message to client using socket connection. 	
+        /// </summary> 	
+        private void SendBytes(byte[] data)
+        {
+            if (connectedTcpClient == null)
+            {
+                return;
+            }
+            try
+            {
+                NetworkStream stream = connectedTcpClient.GetStream();
+                if (stream.CanWrite)
+                {
+                    stream.Write(data, 0, data.Length);
+                    Debug.Log($"Server Bytes[{data.Length}]");
+                }
+            }
+            catch (SocketException socketException)
+            {
+                Debug.Log("Socket exception: " + socketException);
             }
         }
-        return sceneGos;
     }
 }
