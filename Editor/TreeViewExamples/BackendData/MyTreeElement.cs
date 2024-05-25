@@ -2,8 +2,9 @@ using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+using RemoteHierarchy.TreeDataModel;
 
-namespace UnityEditor.TreeViewExamples
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	[Serializable]

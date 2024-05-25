@@ -4,8 +4,9 @@ using UnityEditor.Callbacks;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	class MultiColumnWindow : EditorWindow
@@ -17,7 +18,7 @@ namespace UnityEditor.TreeViewExamples
 		MultiColumnTreeView m_TreeView;
 		MyTreeAsset m_MyTreeAsset;
 
-		[MenuItem("TreeView Examples/Multi Columns")]
+		//[MenuItem("TreeView Examples/Multi Columns")]
 		public static MultiColumnWindow GetWindow ()
 		{
 			var window = GetWindow<MultiColumnWindow>();

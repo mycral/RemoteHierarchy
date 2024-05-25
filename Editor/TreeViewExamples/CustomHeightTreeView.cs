@@ -1,8 +1,9 @@
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	internal class CustomHeightTreeView : TreeViewWithTreeModel<MyTreeElement>

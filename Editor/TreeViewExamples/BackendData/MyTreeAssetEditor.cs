@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
 
-
-namespace UnityEditor.TreeViewExamples
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	[CustomEditor (typeof(MyTreeAsset))]

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UnityEditor.TreeViewExamples
+namespace RemoteHierarchy.TreeViewExamples
 {
 	
 	[CreateAssetMenu (fileName = "TreeDataAsset", menuName = "Tree Asset", order = 1)]

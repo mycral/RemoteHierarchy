@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace UnityEditor.TreeViewExamples
+namespace RemoteHierarchy.TreeDataModel
 {
 
 	[Serializable]

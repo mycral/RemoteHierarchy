@@ -4,8 +4,9 @@ using UnityEditor.Callbacks;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	class CustomHeightWindow : EditorWindow
@@ -16,7 +17,7 @@ namespace UnityEditor.TreeViewExamples
 		CustomHeightTreeView m_TreeView;
 		MyTreeAsset m_MyTreeAsset;
 
-		[MenuItem("TreeView Examples/Custom Row Heights")]
+		//[MenuItem("TreeView Examples/Custom Row Heights")]
 		public static CustomHeightWindow GetWindow()
 		{
 			var window = GetWindow<CustomHeightWindow>();

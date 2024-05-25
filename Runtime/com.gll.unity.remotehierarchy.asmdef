@@ -1,0 +1,14 @@
+{
+    "name": "com.gll.unity.remotehierarchy.Editor",
+    "rootNamespace": "",
+    
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

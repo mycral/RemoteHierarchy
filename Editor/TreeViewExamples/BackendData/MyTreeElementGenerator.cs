@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
 
-
-namespace UnityEditor.TreeViewExamples
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	static class MyTreeElementGenerator

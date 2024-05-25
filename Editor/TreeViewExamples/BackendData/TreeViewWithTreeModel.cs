@@ -4,8 +4,9 @@ using System.Linq;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 
 	internal class TreeViewItem<T> : TreeViewItem where T : TreeElement

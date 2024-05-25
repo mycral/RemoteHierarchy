@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 	
 	class TransformTreeWindow : EditorWindow
@@ -11,7 +12,7 @@ namespace UnityEditor.TreeViewExamples
 
 		TreeView m_TreeView;
 
-		[MenuItem("TreeView Examples/Transform Hierarchy")]
+		//[MenuItem("TreeView Examples/Transform Hierarchy")]
 		static void ShowWindow()
 		{
 			var window = GetWindow<TransformTreeWindow>();

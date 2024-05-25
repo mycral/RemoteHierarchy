@@ -4,8 +4,9 @@ using System.Linq;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.Assertions;
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 	internal class MultiColumnTreeView : TreeViewWithTreeModel<MyTreeElement>
 	{

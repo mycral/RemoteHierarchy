@@ -1,0 +1,9 @@
+{
+  "name": "com.gll.remotehierarchy",
+  "version": "1.0.0",
+  "type": "module",
+  "displayName": "RemoteHierarchy",
+  "description": "Unity\u8fdc\u7a0b\u67e5\u770b\u5de5\u5177",
+  "icon": null,
+  "unity": "2020.2"
+}

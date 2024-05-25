@@ -57,12 +57,12 @@ namespace RemoteHierarchy
 		void DoToolbar()
 		{
 			GUILayout.BeginHorizontal (EditorStyles.toolbar);
-			GUILayout.Label("¿Í»§¶ËµØÖ·");
+			GUILayout.Label("å®¢æˆ·ç«¯åœ°å€");
 			m_kHost = GUILayout.TextField(m_kHost,GUILayout.Width(100));
-			GUILayout.Label($"{(m_kClient.IsConnected() ? "ÒÑ¾­Á¬½Ó" : "Î´Á¬½Ó")}");
+			GUILayout.Label($"{(m_kClient.IsConnected() ? "å·²ç»è¿æ¥" : "æœªè¿æ¥")}");
 			if(m_kClient.IsConnected())
 			{
-				if(GUILayout.Button("¶Ï¿ª"))
+				if(GUILayout.Button("æ–­å¼€"))
 				{
 					m_kClient.StopConnect();
 				}
@@ -70,13 +70,13 @@ namespace RemoteHierarchy
 			else
 			{
 				m_TreeView.SetData(null);
-                if (GUILayout.Button("Á¬½Ó"))
+                if (GUILayout.Button("è¿æ¥"))
                 {
                     m_kClient.ConnectToTcpServer(m_kHost);
                     EditorPrefs.SetString("RemoteHierarchyViewWindow_Host", m_kHost);
                 }
             }
-            if (GUILayout.Button("Ë¢ĞÂ"))
+            if (GUILayout.Button("åˆ·æ–°"))
             {
                 m_kClient.SendGetGameObjectList();
             }
@@ -93,7 +93,7 @@ namespace RemoteHierarchy
 		}
 
 		// Add menu named "My Window" to the Window menu
-		[MenuItem ("TreeView Examples/RemoteHierarchyViewWindow")]
+		[MenuItem ("Window/RemoteHierarchyViewWindow")]
 		static void ShowWindow ()
 		{
 			// Get existing open window or if none, make a new one:

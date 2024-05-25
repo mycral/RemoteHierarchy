@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 
-
-namespace UnityEditor.TreeViewExamples
+using UnityEditor;
+using RemoteHierarchy.TreeDataModel;
+namespace RemoteHierarchy.TreeViewExamples
 {
 	class SimpleTreeViewWindow : EditorWindow
 	{
@@ -50,7 +51,7 @@ namespace UnityEditor.TreeViewExamples
 		}
 
 		// Add menu named "My Window" to the Window menu
-		[MenuItem ("TreeView Examples/Simple Tree Window")]
+		//[MenuItem ("TreeView Examples/Simple Tree Window")]
 		static void ShowWindow ()
 		{
 			// Get existing open window or if none, make a new one:

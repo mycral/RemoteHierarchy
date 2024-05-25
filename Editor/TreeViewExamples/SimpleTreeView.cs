@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor.IMGUI.Controls;
 
 
-namespace UnityEditor.TreeViewExamples
+namespace RemoteHierarchy.TreeViewExamples
 {
 	class SimpleTreeView : TreeView
 	{
