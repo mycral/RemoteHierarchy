@@ -23,6 +23,9 @@ namespace RemoteHierarchy
                 ret.SceneList.Add(BuildSceneInfo(curScene));
             }
 
+            var dontDestroyOnLoadScene =  UnityMainThreadDispatcher.Instance.gameObject.scene;
+            ret.SceneList.Add(BuildSceneInfo(dontDestroyOnLoadScene));
+            
             return ret;
         }
 

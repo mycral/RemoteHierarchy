@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using RemoteHierarchy.EditorGUIHelper;
+using RemoteHierarchy.Proto;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -8,6 +10,7 @@ namespace RemoteHierarchy
 	public class TreeViewItem<T> : TreeViewItem
 	{
 		public T data;
+		public bool isInActiveInHierarchy = true;
 	}
 	
 	class RemoteHierarchyView : TreeView
@@ -16,8 +19,11 @@ namespace RemoteHierarchy
 		const float kToggleWidth = 18f;
 
 		private Proto.S2C_GameObjectTree m_kTreeData;
+
+		private List<TreeViewItem> m_kTreeViewItemList;
 		
 		public event System.Action<Proto.GameObjectInfo>  OnEvtGameObjectActiveStateChange;
+		public event System.Action<TreeViewItem>  OnEvtNodeClicked;
 		
 		public RemoteHierarchyView(TreeViewState treeViewState)
 			: base(treeViewState)
@@ -25,6 +31,16 @@ namespace RemoteHierarchy
 			Reload();
 		}
 
+		protected override void SingleClickedItem(int id)
+		{
+			base.SingleClickedItem(id);
+
+			var treeViewItem = m_kTreeViewItemList.Find(o => o.id == id);
+			if (OnEvtNodeClicked != null)
+			{
+				OnEvtNodeClicked(treeViewItem);
+			}
+		}
 
 		protected override void RowGUI (RowGUIArgs args)
 		{
@@ -33,7 +49,9 @@ namespace RemoteHierarchy
 			Rect toggleRect = args.rowRect;
 			toggleRect.x += GetContentIndent(item);
 			toggleRect.width = kToggleWidth;
-	
+
+			bool isGrayLabel = false;
+			
 			if (item is TreeViewItem<Proto.GameObjectInfo> goInfo)
 			{
 				var isActive = goInfo.data.IsActive;
@@ -46,12 +64,26 @@ namespace RemoteHierarchy
 						OnEvtGameObjectActiveStateChange(goInfo.data);
 					}
 				}
+				isGrayLabel = !goInfo.isInActiveInHierarchy;
 			}
-			// Default icon and label
 			var restRect = args.rowRect;
-			restRect.x += kToggleWidth;
+			if (item is TreeViewItem<Proto.GameObjectInfo>)
+			{
+				restRect.x += kToggleWidth;
+			}
 			args.rowRect = restRect;
-			base.RowGUI(args);
+
+			if (isGrayLabel)
+			{
+				using (new GUIColor(Color.grey))
+				{
+					base.RowGUI(args);
+				}
+			}
+			else
+			{
+				base.RowGUI(args);
+			}
 		}
 		
 		
@@ -97,10 +129,36 @@ namespace RemoteHierarchy
 			// This section illustrates that IDs should be unique and that the root item is required to 
 			// have a depth of -1 and the rest of the items increment from that.
 			var root = new TreeViewItem {id = 0, depth = -1, displayName = "Root"};
-			var allItems = new List<TreeViewItem>();
-			BuildTree(allItems);
+			m_kTreeViewItemList = new List<TreeViewItem>();
+			BuildTree(m_kTreeViewItemList);
+
+			//标记真正未激活的对象
+			int depth = 0;
+			bool isFindInActive = false;
+			for (int i = 0; i < m_kTreeViewItemList.Count; ++i)
+			{
+				var curItem = m_kTreeViewItemList[i];
+				if (curItem is TreeViewItem<Proto.GameObjectInfo> goInfo)
+				{
+					if (!goInfo.data.IsActive && !isFindInActive)
+					{
+						isFindInActive = true;
+						goInfo.isInActiveInHierarchy = false;
+						depth = goInfo.depth;
+						continue;
+					}
+					if (depth < goInfo.depth && isFindInActive)
+					{
+						goInfo.isInActiveInHierarchy = false;
+					}
+					else
+					{
+						isFindInActive = false;
+					}
+				}
+			}
 			// Utility method that initializes the TreeViewItem.children and -parent for all items.
-			SetupParentsAndChildrenFromDepths (root, allItems);
+			SetupParentsAndChildrenFromDepths (root, m_kTreeViewItemList);
 			
 			// Return root of the tree
 			return root;

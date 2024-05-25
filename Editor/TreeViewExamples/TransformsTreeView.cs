@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RemoteHierarchy.EditorGUIHelper;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -160,7 +161,8 @@ namespace RemoteHierarchy.TreeViewExamples
 				gameObject.isStatic = isStatic;
 
 			// Text
-			base.RowGUI(args);
+			using(new GUIColor(Color.gray))
+				base.RowGUI(args);
 		}
 
 		// Selection

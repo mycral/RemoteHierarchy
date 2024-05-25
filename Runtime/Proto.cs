@@ -10,6 +10,9 @@ namespace RemoteHierarchy.Proto
         public const int S2C_GameObjectTree = 1;
         public const int C2S_SetGameObjectActiveState = 2;
         public const int C2S_GetGameObjectTree = 3;
+        
+        public const int C2S_GetGameObjectDetail = 4;
+        public const int S2C_ResponseGameObjectDetail = 5;
     }
 
     [Serializable]
@@ -46,6 +49,20 @@ namespace RemoteHierarchy.Proto
     {
         public S2C_GameObjectTree() { SceneList = new List<SceneInfo>(); }
         public List<SceneInfo> SceneList;
+    }
+    
+    [Serializable]
+    public class C2S_GetGameObjectDetail
+    {
+        public int InstanceId;
+    }
+    
+    [Serializable]
+    public class S2C_ResponseGameObjectDetail
+    {
+        public S2C_ResponseGameObjectDetail() { Components = new List<string>(); }
+        
+        public List<string> Components;
     }
 }
 

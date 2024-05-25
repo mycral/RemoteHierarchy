@@ -21,6 +21,7 @@ namespace RemoteHierarchy
         #endregion
         
         public event Action<S2C_GameObjectTree> OnEvtNewGameObjectTree;
+        public event Action<S2C_ResponseGameObjectDetail> OnEvtResponseGameObjectDetail;
 
         // Use this for initialization 	
         public  Client()
@@ -117,6 +118,11 @@ namespace RemoteHierarchy
                         OnMsgGameObjectTree(buffer, msgLength);
                         break;
                     }
+                case MessageId.S2C_ResponseGameObjectDetail:
+                {
+                    OnMsgResponseGameObjectDetail(buffer, msgLength);
+                    break;
+                }
             }
             Array.Copy(buffer, msgLength, buffer, 0, ms.Position - msgLength);//可能有隐患
             ms.Position = ms.Position - msgLength;
@@ -128,6 +134,13 @@ namespace RemoteHierarchy
                 OnEvtNewGameObjectTree(tree);
             Debug.Log(JsonUtility.ToJson(tree));
         }
+        private void OnMsgResponseGameObjectDetail(byte[] buff, int length)
+        {
+            var detail = Utility.ResoveMessageBody<Proto.S2C_ResponseGameObjectDetail>(buff, length);
+            if (OnEvtResponseGameObjectDetail != null)
+                OnEvtResponseGameObjectDetail(detail);
+            Debug.Log(JsonUtility.ToJson(detail));
+        }
 
         public void SendGetGameObjectList()
         {
@@ -136,8 +149,11 @@ namespace RemoteHierarchy
 
         public void SendSetGameObjectActive(int instanceId,bool active)
         {
-            var tree = Utility.BuildGameObjectTree();
             SendBytes(Utility.BuildMessageBytes(Proto.MessageId.C2S_SetGameObjectActiveState, new Proto.GameObjectActive() { InstanceId = instanceId,IsActive = active}));
+        }
+        public void SendGetGameObjectDetail(int instanceId)
+        {
+            SendBytes(Utility.BuildMessageBytes(Proto.MessageId.C2S_GetGameObjectDetail, new Proto.C2S_GetGameObjectDetail() { InstanceId = instanceId}));
         }
 
         /// <summary> 	

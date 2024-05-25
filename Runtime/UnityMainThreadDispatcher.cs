@@ -10,19 +10,30 @@ namespace RemoteHierarchy
     class UnityMainThreadDispatcher :MonoBehaviour
     {
         private static UnityMainThreadDispatcher _Instance;
-        public static UnityMainThreadDispatcher Instance {
-            get{
-                if(_Instance == null)
-                {
-                    var go = new GameObject(nameof(UnityMainThreadDispatcher));
-                    _Instance = go.AddComponent<UnityMainThreadDispatcher>();
-                }
-                return _Instance;
-            } 
-        }
-
+        public static UnityMainThreadDispatcher Instance => _Instance;
         private List<Action> m_kActions = new List<Action>();
 
+        private void Awake()
+        {
+            _Instance = this;
+            Application.onBeforeRender -= CheckActive;
+            Application.onBeforeRender += CheckActive;
+        }
+
+        private void OnDisable()
+        {
+            Application.onBeforeRender -= CheckActive;
+        }
+
+
+        private void CheckActive()
+        {
+            if (!gameObject.activeSelf)
+            {
+                gameObject.SetActive(true);
+            }
+        }
+        
         public void AddAction(Action action)
         {
             lock(this)

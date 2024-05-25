@@ -49,9 +49,7 @@ namespace RemoteHierarchy
         }
 
         // Update is called once per frame
-        void Update()
-        {
-        }
+        
 
         /// <summary> 	
         /// Runs in background TcpServerThread; Handles incomming TcpClient requests 	
@@ -125,6 +123,11 @@ namespace RemoteHierarchy
                         SendGameObjectTree();
                         break;
                     }
+                    case MessageId.C2S_GetGameObjectDetail:
+                    {
+                        SendGameObjectDetail(buffer,msgLength);
+                        break;
+                    }
                 }
             }
             catch (Exception e)
@@ -155,6 +158,27 @@ namespace RemoteHierarchy
             var tree = Utility.BuildGameObjectTree();
             SendBytes(Utility.BuildMessageBytes(Proto.MessageId.S2C_GameObjectTree, tree));
         }
+        
+        private void SendGameObjectDetail(byte[] buff,int length)
+        {
+            var req = Utility.ResoveMessageBody<Proto.C2S_GetGameObjectDetail>(buff, length);
+            var gameObject = Utility.GetGameObjectFromInstanceId(req.InstanceId);
+            var detail = new Proto.S2C_ResponseGameObjectDetail();
+            if (gameObject != null)
+            {
+               var comps = gameObject.GetComponents<Component>();
+               foreach (var comp in comps)
+               {
+                   detail.Components.Add(comp.GetType().FullName);
+               }
+            }
+            else
+            {
+                Debug.LogError(($"没有找到实例{req.InstanceId}"));
+            }
+            SendBytes(Utility.BuildMessageBytes(Proto.MessageId.S2C_ResponseGameObjectDetail,detail));
+        }
+        
 
         /// <summary> 	
         /// Send message to client using socket connection. 	

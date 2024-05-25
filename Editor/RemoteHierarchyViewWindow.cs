@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using RemoteHierarchy;
+using RemoteHierarchy.Proto;
 using UnityEditor;
 namespace RemoteHierarchy
 {
@@ -17,11 +18,15 @@ namespace RemoteHierarchy
         RemoteHierarchyView m_TreeView;
 		SearchField m_SearchField;
 		private string m_kHost;
+		private EditorGUISplitView m_kHorizontalSplitView = new EditorGUISplitView (EditorGUISplitView.Direction.Horizontal);
 		void OnEnable ()
 		{
 			m_kHost = EditorPrefs.GetString("RemoteHierarchyViewWindow_Host", "127.0.0.1");
 			m_kClient.OnEvtNewGameObjectTree -= OnEvtNewGameObjectTree;
 			m_kClient.OnEvtNewGameObjectTree += OnEvtNewGameObjectTree;
+			
+			m_kClient.OnEvtResponseGameObjectDetail -= OnEvtResponseGameObjectDetail;
+			m_kClient.OnEvtResponseGameObjectDetail += OnEvtResponseGameObjectDetail;
 			
 			// Check if we already had a serialized view state (state 
 			// that survived assembly reloading)
@@ -35,6 +40,10 @@ namespace RemoteHierarchy
 
 			m_TreeView.OnEvtGameObjectActiveStateChange -= OnEvtGameObjectInfoChange;
 			m_TreeView.OnEvtGameObjectActiveStateChange += OnEvtGameObjectInfoChange;
+
+			m_TreeView.OnEvtNodeClicked -= OnEvtTreeViewItemClicked;
+			m_TreeView.OnEvtNodeClicked += OnEvtTreeViewItemClicked;
+
 		}
 
 		void OnEvtNewGameObjectTree(Proto.S2C_GameObjectTree tree)
@@ -49,10 +58,23 @@ namespace RemoteHierarchy
 			Repaint();
 		}
 
+		void OnEvtTreeViewItemClicked(TreeViewItem item)
+		{
+			if (item is TreeViewItem<GameObjectInfo> goInfo)
+			{
+				m_kClient.SendGetGameObjectDetail(goInfo.data.InstanceId);
+			}
+		}
+
 		void OnGUI ()
 		{
 			DoToolbar ();
+			m_kHorizontalSplitView.BeginSplitView();
 			DoTreeView ();
+			m_kHorizontalSplitView.Split();
+			DoInspectorView();
+			m_kHorizontalSplitView.EndSplitView();
+			Repaint();
 		}
 		void DoToolbar()
 		{
@@ -90,6 +112,28 @@ namespace RemoteHierarchy
 		{
 			Rect rect = GUILayoutUtility.GetRect(0, 100000, 0, 100000);
 			m_TreeView.OnGUI(rect);
+		}
+
+		private Proto.S2C_ResponseGameObjectDetail m_kCurDetail;
+		
+		void OnEvtResponseGameObjectDetail(Proto.S2C_ResponseGameObjectDetail detail)
+		{
+			m_kCurDetail = detail;
+		}
+
+		void DoInspectorView()
+		{
+			if (m_kCurDetail == null || m_kCurDetail.Components == null)
+				return;
+			
+			using (new EditorGUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
+			{
+				foreach (var comp in m_kCurDetail.Components)
+				{
+					GUILayout.Label(comp);
+				}
+			}
+			//EditorGUILayout.HelpBox(new GUIContent("DoInspectorView"));
 		}
 
 		// Add menu named "My Window" to the Window menu
