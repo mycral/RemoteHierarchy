@@ -1,6 +1,18 @@
 {
-	"name": "com.gll.unity.remotehierarchy",
-	"references": [
-		"GUID:059b705e32d615f4cadd710f47d0f59a"
-	]
+    "name": "com.gll.unity.remotehierarchy",
+    "rootNamespace": "",
+    "references": [
+        "GUID:059b705e32d615f4cadd710f47d0f59a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
