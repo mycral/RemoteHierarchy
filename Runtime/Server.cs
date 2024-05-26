@@ -40,7 +40,6 @@ namespace RemoteHierarchy
             UnityMainThreadDispatcher _ = UnityMainThreadDispatcher.Instance;
         }
 
-        // Use this for initialization
         void Start()
         {
             // Start TcpServer background thread 		
@@ -49,8 +48,13 @@ namespace RemoteHierarchy
             tcpListenerThread.Start();
         }
 
-        // Update is called once per frame
-        
+        private void OnDestroy()
+        {
+            if (tcpListener != null)
+            {
+                tcpListener.Stop();
+            }
+        }
 
         /// <summary> 	
         /// Runs in background TcpServerThread; Handles incomming TcpClient requests 	

@@ -9,6 +9,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEditor;
 using UnityEngine;
 namespace RemoteHierarchy
 {
@@ -70,7 +71,32 @@ namespace RemoteHierarchy
         {
             try
             {
-                socketConnection = new TcpClient(m_kHost, 8052);
+                string kConnectFailedMessage = null;
+                try
+                {
+                    EditorUnityMainThreadDispatcher.WaitExecOnMainThread(() =>
+                    {
+                        UnityEditor.EditorUtility.DisplayProgressBar("Connecting", "Connecting...", 0.5f);
+                    });
+                    socketConnection = new TcpClient(m_kHost, 8052);
+                }
+                catch (Exception e)
+                {
+                    kConnectFailedMessage = e.Message;
+                }
+                EditorUnityMainThreadDispatcher.WaitExecOnMainThread(() =>
+                {
+                    UnityEditor.EditorUtility.ClearProgressBar();
+                });
+                if (socketConnection == null)
+                {
+                    EditorUnityMainThreadDispatcher.WaitExecOnMainThread(() =>
+                    {
+                        UnityEditor.EditorUtility.DisplayDialog("错误", kConnectFailedMessage, "OK");
+                    });
+                    return;
+                }
+                
                 MemoryStream memoryStream = new MemoryStream();
                 byte[] buff = new byte[1024];
                 while (true)
@@ -98,13 +124,20 @@ namespace RemoteHierarchy
                     }
                 }
             }
+            catch (ObjectDisposedException ex)
+            {
+                socketConnection = null;
+            }
+            catch (IOException ex)
+            {
+                socketConnection = null;
+            }
             catch (SocketException socketException)
             {
-                Debug.LogError("Socket exception: " + socketException);
+                Debug.LogError($"Socket exception: {socketException.Message}\n{socketException.StackTrace}");
                 socketConnection = null;
             }
         }
-
         private void OnRevMsg(MemoryStream ms, int msgLength)
         {
             byte[] buffer = ms.GetBuffer();
