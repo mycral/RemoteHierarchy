@@ -88,6 +88,10 @@ namespace RemoteHierarchy
 				{
 					m_kClient.StopConnect();
 				}
+				if (GUILayout.Button("刷新"))
+				{
+					m_kClient.SendGetGameObjectList();
+				}
 			}
 			else
 			{
@@ -97,10 +101,6 @@ namespace RemoteHierarchy
                     m_kClient.ConnectToTcpServer(m_kHost);
                     EditorPrefs.SetString("RemoteHierarchyViewWindow_Host", m_kHost);
                 }
-            }
-            if (GUILayout.Button("刷新"))
-            {
-                m_kClient.SendGetGameObjectList();
             }
             GUILayout.Space (100);
 			GUILayout.FlexibleSpace();
