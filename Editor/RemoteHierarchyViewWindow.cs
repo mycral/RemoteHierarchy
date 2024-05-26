@@ -123,15 +123,12 @@ namespace RemoteHierarchy
 
 		void DoInspectorView()
 		{
-			if (m_kCurDetail == null || m_kCurDetail.Components == null)
+			if (m_kCurDetail == null || m_kCurDetail.JsonData == null)
 				return;
 			
 			using (new EditorGUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
 			{
-				foreach (var comp in m_kCurDetail.Components)
-				{
-					GUILayout.Label(comp);
-				}
+				GUILayout.Label(m_kCurDetail.JsonData);
 			}
 			//EditorGUILayout.HelpBox(new GUIContent("DoInspectorView"));
 		}

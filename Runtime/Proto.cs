@@ -60,9 +60,7 @@ namespace RemoteHierarchy.Proto
     [Serializable]
     public class S2C_ResponseGameObjectDetail
     {
-        public S2C_ResponseGameObjectDetail() { Components = new List<string>(); }
-        
-        public List<string> Components;
+        public string JsonData;
     }
 }
 

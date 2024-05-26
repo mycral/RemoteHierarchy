@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -166,11 +167,7 @@ namespace RemoteHierarchy
             var detail = new Proto.S2C_ResponseGameObjectDetail();
             if (gameObject != null)
             {
-               var comps = gameObject.GetComponents<Component>();
-               foreach (var comp in comps)
-               {
-                   detail.Components.Add(comp.GetType().FullName);
-               }
+                detail.JsonData = SerilizeJsonUtility.SerializeGameObject(gameObject).ToString(true);
             }
             else
             {
