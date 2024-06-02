@@ -9,10 +9,6 @@ namespace RemoteHierarchy
 	class RemoteHierarchyViewWindow : EditorWindow
 	{
 		private Client m_kClient = new Client();
-		// We are using SerializeField here to make sure view state is written to the window 
-		// layout file. This means that the state survives restarting Unity as long as the window
-		// is not closed. If omitting the attribute then the state just survives assembly reloading 
-		// (i.e. it still gets serialized/deserialized)
 		[SerializeField] TreeViewState m_TreeViewState;
 
         // The TreeView is not serializable it should be reconstructed from the tree data.
