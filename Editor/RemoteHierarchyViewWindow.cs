@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using RemoteHierarchy;
 using RemoteHierarchy.Proto;
+using RemoteHierarchy.RemoteHierarchy.Editor;
 using UnityEditor;
 namespace RemoteHierarchy
 {
@@ -21,7 +22,8 @@ namespace RemoteHierarchy
 		private EditorGUISplitView m_kHorizontalSplitView = new EditorGUISplitView (EditorGUISplitView.Direction.Horizontal);
 		void OnEnable ()
 		{
-			m_kHost = EditorPrefs.GetString("RemoteHierarchyViewWindow_Host", "127.0.0.1");
+			
+			m_kHost = EditorPrefs.GetString(StringTable.RemoteHierarchyViewWindowHost, "127.0.0.1");
 			m_kClient.OnEvtNewGameObjectTree -= OnEvtNewGameObjectTree;
 			m_kClient.OnEvtNewGameObjectTree += OnEvtNewGameObjectTree;
 			
@@ -79,16 +81,16 @@ namespace RemoteHierarchy
 		void DoToolbar()
 		{
 			GUILayout.BeginHorizontal (EditorStyles.toolbar);
-			GUILayout.Label("客户端地址");
+			GUILayout.Label(StringTable.ClientAddress);
 			m_kHost = GUILayout.TextField(m_kHost,GUILayout.Width(100));
-			GUILayout.Label($"{(m_kClient.IsConnected() ? "已经连接" : "未连接")}");
+			GUILayout.Label($"{(m_kClient.IsConnected() ? StringTable.Connected : StringTable.NotConnected)}");
 			if(m_kClient.IsConnected())
 			{
-				if(GUILayout.Button("断开"))
+				if(GUILayout.Button(StringTable.Disconnect))
 				{
 					m_kClient.StopConnect();
 				}
-				if (GUILayout.Button("刷新"))
+				if (GUILayout.Button(StringTable.Refresh))
 				{
 					m_kClient.SendGetGameObjectList();
 				}
@@ -96,15 +98,25 @@ namespace RemoteHierarchy
 			else
 			{
 				m_TreeView.SetData(null);
-                if (GUILayout.Button("连接"))
-                {
-                    m_kClient.ConnectToTcpServer(m_kHost);
-                    EditorPrefs.SetString("RemoteHierarchyViewWindow_Host", m_kHost);
-                }
-            }
+				if (GUILayout.Button(StringTable.Connect))
+				{
+					m_kClient.ConnectToTcpServer(m_kHost);
+					EditorPrefs.SetString(StringTable.RemoteHierarchyViewWindowHost, m_kHost);
+				}
+			}
             GUILayout.Space (100);
 			GUILayout.FlexibleSpace();
 			m_TreeView.searchString = m_SearchField.OnToolbarGUI (m_TreeView.searchString);
+			
+			// Add a button for language selection
+			if (GUILayout.Button(StringTable.Language))
+			{
+				GenericMenu menu = new GenericMenu();
+				menu.AddItem(new GUIContent(StringTable.English), StringTable.GetCurrentLanguage() == StringTable.LanguageType.English, () => StringTable.SetLanguage(StringTable.LanguageType.English));
+				menu.AddItem(new GUIContent(StringTable.Chinese), StringTable.GetCurrentLanguage() == StringTable.LanguageType.Chinese, () => StringTable.SetLanguage(StringTable.LanguageType.Chinese));
+				menu.ShowAsContext();
+			}
+			
 			GUILayout.EndHorizontal();
 		}
 
