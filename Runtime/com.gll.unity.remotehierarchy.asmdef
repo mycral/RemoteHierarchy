@@ -1,7 +1,7 @@
 {
-    "name": "com.gll.unity.remotehierarchy.Editor",
+    "name": "com.gll.unity.remotehierarchy",
     "rootNamespace": "",
-    
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

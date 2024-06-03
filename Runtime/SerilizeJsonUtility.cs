@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Defective.JSON;
 using UnityEngine;
 
@@ -16,26 +17,26 @@ namespace RemoteHierarchy
             }
             return JSONObject.Create(array);
         }
+
         public static JSONObject SerializeComponent(Component component)
         {
             if (component == null)
                 return JSONObject.nullObject;
-            if (component is Transform transform)
+
+            Type componentType = component.GetType();
+            Type[] parameterTypes = new Type[] { componentType };
+
+            // Find the appropriate serialization method based on the component type
+            var serializeMethod = typeof(SerilizeJsonUtility).GetMethod("Serialize", parameterTypes);
+            if (serializeMethod != null)
             {
-                return SerializeTransform(transform);
+                return (JSONObject)serializeMethod.Invoke(null, new object[] { component });
             }
-            if (component is MeshFilter mf)
-            {
-                return SerializeMeshFilter(mf);
-            }
-            if (component is MeshRenderer mr)
-            {
-                return SerializeMeshRender(mr);
-            }
-            return JSONObject.StringObject(component.GetType().Name);
+
+            return JSONObject.StringObject(componentType.Name);
         }
 
-        public static JSONObject SerializeTransform(Transform component)
+        public static JSONObject Serialize(Transform component)
         {
             return new JSONObject(jsn =>
             {
@@ -48,8 +49,8 @@ namespace RemoteHierarchy
                 jsn.AddField("localScale", component.localScale.ToJson());
             });
         }
-        
-        public static JSONObject SerializeMeshFilter(MeshFilter component)
+
+        public static JSONObject Serialize(MeshFilter component)
         {
             return new JSONObject(jsn =>
             {
@@ -57,8 +58,8 @@ namespace RemoteHierarchy
                 jsn.AddField("mesh", component.sharedMesh.name);
             });
         }
-        
-        public static JSONObject SerializeMeshRender(MeshRenderer component)
+
+        public static JSONObject Serialize(MeshRenderer component)
         {
             return new JSONObject(jsn =>
             {
